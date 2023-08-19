@@ -1,0 +1,85 @@
+service: EMP_management
+
+plugins:
+  - serverless-webpack
+  - serverless-offline
+  - serverless-log-forwarding
+  - serverless-dotenv-plugin
+
+#---custom data ----------
+
+custom:
+  env: ${file(./config.yml)}
+  region: us-east-1
+  allowedHeaders:
+    - Content-Type
+    
+#--- provider data ---
+
+provider:
+  name: aws/azure/google
+  stage: dev/prod,qa
+  runtime: nodejs14.x
+  endpointType: REGIONAL/EDGE  
+  region: us-east-1
+  versionFunctions: false
+  timeout: 30
+  environment:
+    DB_HOST=${self:custom.env.DB_HOST}
+    DB_PORT=${self:custom.env.DB_PORT}
+    DB_NAME=${self:custom.env.DB_NAME}
+    DB_USER=${self:custom.env.DB_USER}
+    DB_PASS=${self:custom.env.DB_PASS}
+    API_KEY=${self:custom.env.API_KEY}
+    DEBUG=${self:custom.env.DEBUG}
+
+    
+#------ lambda functions
+
+functions:
+  createItem:
+    handler: Employee/index.create
+    events:
+      - http:
+          path: create-item
+          method: POST
+    package:
+      individually: true
+      include:
+        - Employee/**
+      exclude:
+        - ./**
+
+    events:
+      - http:
+          path: create-emp
+          method: POST
+          cors:
+              origin: *
+              headers: ${self:custom.allowedHeaders}
+    layers:
+      - { Ref: LambdaLayer }
+
+  getEMP:
+    handler: Employee/index.get
+    package:
+      individually: true
+      include:
+        - Employee/**
+      exclude:
+        - ./**
+
+    events:
+      - http:
+          path: get-emp
+          method: GET
+          cors:
+              origin: *
+              headers: ${self:custom.allowedHeaders} 
+    layers:
+      - { Ref: LambdaLayer }
+
+layers:
+  LambdaLayer:
+    path: lambdaLayer/nodejs
+     

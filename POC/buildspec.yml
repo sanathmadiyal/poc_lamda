@@ -1,0 +1,17 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 14.x
+  pre_build:
+    commands:
+      - npm install -g serverless
+  build:
+    commands:
+      - npm install
+      - serverless deploy --stage dev
+
+artifacts:
+  files:
+    - serverless.yml

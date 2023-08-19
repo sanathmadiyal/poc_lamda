@@ -1,0 +1,9 @@
+{
+  "name": "my-lambda-layer",
+  "version": "1.0.0",
+  "description": "Lambda layer for database connection and employee operations",
+  "license": "MIT",
+  "dependencies": {
+    "mongodb": "latest"
+  }
+}
